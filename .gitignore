@@ -1,3 +1,6 @@
 .DS_Store
 MainQuest/data/
 .ipynb_checkpoints/
+
+# data files
+*.csv
