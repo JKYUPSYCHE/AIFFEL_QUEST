@@ -1,57 +1,24 @@
-# AIFFEL Campus Online Code Peer Review Templete
-- 코더 : 유진국
-- 리뷰어 : 손정희
+## 꽃 분류 모델 개선v2 (백본모델 비교 및 fine tuning)
 
+<img width="849" height="541" alt="Screenshot 2026-03-11 at 4 52 45 PM" src="https://github.com/user-attachments/assets/40519d3b-6f13-4b30-9dac-74b923bcaa6f" />
 
-# PRT(Peer Review Template)
-- [x]  **1. 주어진 문제를 해결하는 완성된 코드가 제출되었나요?** -> 제출 되었습니다.
-```
-account 클래스 및 필요한 매서드 들이 코드안에 전부 포함되어 있습니다.
-```
+<img width="848" height="536" alt="Screenshot 2026-03-11 at 5 26 35 PM" src="https://github.com/user-attachments/assets/69c522e6-417b-4dcd-8d48-34997396115d" />
 
-    
-- [x]  **2. 전체 코드에서 가장 핵심적이거나 가장 복잡하고 이해하기 어려운 부분에 작성된 주석 또는 doc string을 보고 해당 코드가 잘 이해되었나요?**
-```
-각 코드별 들여쓰기, 내용정열이 깔끔하여 보기 편했고,
-코드마다 라인별로 주석이 있어 이해하기 쉬웠습니다.
+### 과정
+네 가지 모델(VGG16, ResNet50, MobileNetV2, EfficientNetB0)을 동일한 조건(v1 참조)으로 비교하여 가장 적합한 백본 모델 선출(winner : EfficientNetB0, 첫 번째 이미지)
 
--------코드에서 해당부분--------
-# 1. account 클래스 만들기
-from random import *
-class Account:
-  account_num = 0
-  def __init__(self, account_holder):
-    self.bank_name = '모두은행'  # 은행이름
-    self.account_holder = account_holder # 예금주
-    self.account_number = self.create_account_number() # 계좌번호 생성
-    self.balance = 0 # 잔액
-    self.deposit_count = 0  # 입금 횟수 - 입금 5회 이자 생성을 위해 입금만 세기
-    Account.account_num += 1 # 계좌 수 늘렸을 때
-    self.account_history = '' # 입출금 기록
-    self.total_count = 0 # 입출금(거래) 횟수 - 입금 5회 이자 생성을 위해 따로 만들고 출금 횟수도 함께
--------------------
-```       
-- [x]  **3. 에러가 난 부분을 디버깅하여 문제를 해결한 기록을 남겼거나 새로운 시도 또는 추가 실험을 수행해봤나요?**
-```
-특별히 에러가 난 부분은 없었습니다.
-다만, 금 횟수 - 입금 5회 이자 생성을 위해, 출금 출력을 count 속성을 2개로 나눠서 진행한 점이 좋았습니다.
-``` 
-        
-- [x]  **4. 회고를 잘 작성했나요?**
-```
-코드내에 회고 내용은 별도로 포함되어 있지 않지만, 구두 설명에서 잘 설명해 주셨습니다.
-``` 
-        
-- [x]  **5. 코드가 간결하고 효율적인가요?**
-```
-코드에서 중복되는 부분이 없고 잘 작성되어 깔끔하다는 느낌을 받았습니다.
-필요한 기능만 깔끔하게 구현되어 있는 것 같습니다. 
-``` 
+### CNN layer 일부(238 레이어 중 뒤쪽 40 layers)를 unfreeze 하여 fine-tuning (classifier training: 10 epochs, fine-tuning : 10 epochs, 두 번째 이미지)
+- Early CNN layers → freeze
+- Middle CNN layers → freeze
+- Late CNN layers → train
+- Classifier head → train
 
-# 회고(참고 링크 및 코드 개선)
-```
-전반적으로 군더더기 없이 깔끔하게 작성이 되어 있어서 읽기에 편했습니다.
-출금 매서드 블록에서 입출금 출력을 count 속성을 2개로 나눠서 진행 하거나,
-히스토리를 account와 withdraw를 나눠서 히스토리에 합치는 아이디어를 생각하셨는데
-제가 작성할때는 미처 고려하지 못한 부분이라 배워갈 수 있었습니다. 
-```
+### 최종 Test Accuracy : 87.5% -> 94.55%
+
+### 회고
+백본 모델간 성능 비교시, VGG16 성능에 한계가 있었음. 이는 아키텍처의 세대 차이로 인한 것(EfficientNetB0(2019), VGG16(2014))으로 보임.
+fine-tuning에 의한 성능 증가가 소폭 있었음. unfreeze 할 레이어의 개수는 임의로 지정한 것이지만 적절한 숫자를 찾을 경우 정교한 fine tuning이 가능할 것으로 보임
+
+### 의문점과 해소
+fine tuning 시에 처음부터 원하는 레이어를 unfreeze 하고 학습시키는 것과, classifier 만 1차 학습 시킨 뒤 CNN layer를 unfreeze하는 것의 차이가 무엇일까?
+-> classifier가 먼저 안정적으로 학습되어야 이후 fine tuning 과정에서 pretrained CNN layer feature가 훼손되지 않는다(안정성 측면).
