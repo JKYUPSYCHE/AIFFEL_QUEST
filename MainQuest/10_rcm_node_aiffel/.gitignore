@@ -1,0 +1,47 @@
+# macOS / editor
+.DS_Store
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Local build / packaging
+build/
+dist/
+*.egg-info/
+
+# Large data files
+autoint/data/**/*.csv
+autoint/data/**/*.npy
+autoint/data/**/*.pkl
+autoint/data/**/*.zip
+
+# Keep notebooks and code, but ignore generated datasets at the top of data/
+autoint/data/*.csv
+autoint/data/*.npy
+autoint/data/*.pkl
+
+# Trained models / weights
+autoint/model/*.h5
+autoint/model/*.keras
+autoint/model/*.pkl
+
+# Experiment artifacts
+experiments/artifacts/
+
+# Generated result assets
+experiments/results/figures/*.html
+
+# Allow checked-in documentation/result summaries and README figure assets
+!experiments/results/*.md
+!experiments/results/*.csv
+!experiments/results/figures/*.png
